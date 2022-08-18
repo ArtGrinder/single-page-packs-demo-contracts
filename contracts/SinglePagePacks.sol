@@ -26,12 +26,12 @@ contract SinglePagePacks is ISinglePagePacks, ERC721Holder, AccessControl {
     function grantPack(address player) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256[MAX_PACK_SIZE] memory expandedValues;
 
-        TokenId tokenId = randomPack.mint(player, PackSize.Regular);
         uint8 piecesNum = randomPack.piecesInPackSize(PackSize.Regular);
 
         uint256 sortaRandomness = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty)));
 
-        uint256[MAX_PACK_SIZE] memory pieces = expand(sortaRandomness, piecesNum);
+        uint8[MAX_PACK_SIZE] memory pieces = expand(sortaRandomness, piecesNum, 14);
+        TokenId tokenId = randomPack.mint(player, PackSize.Regular, pieces);
         emit Pack(tokenId, pieces);
     }
 
@@ -40,10 +40,10 @@ contract SinglePagePacks is ISinglePagePacks, ERC721Holder, AccessControl {
     }
 
 
-    function expand(uint256 randomValue, uint8 piecesNum) internal pure returns (uint256[MAX_PACK_SIZE] memory) {
-        uint256[MAX_PACK_SIZE] memory expandedValues;
+    function expand(uint256 randomValue, uint8 piecesNum, uint8 modulo) internal pure returns (uint8[MAX_PACK_SIZE] memory) {
+        uint8[MAX_PACK_SIZE] memory expandedValues;
         for (uint256 i = 0; i < piecesNum; i++) {
-            expandedValues[i] = uint256(keccak256(abi.encode(randomValue, i)));
+            expandedValues[i] = uint8(uint256(keccak256(abi.encode(randomValue, i))) % modulo);
         }
         return expandedValues;
     }

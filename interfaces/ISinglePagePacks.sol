@@ -4,7 +4,7 @@ pragma solidity ^0.8.14;
 import "./ISinglePageRandomPack.sol";
 
 interface ISinglePagePacks {
-    event Pack(TokenId indexed tokenId, uint256[10] pieces);
+    event Pack(TokenId indexed tokenId, uint8[10] pieces);
 
     function grantPack(address player) external;
 

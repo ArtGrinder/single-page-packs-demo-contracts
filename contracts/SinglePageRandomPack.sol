@@ -12,11 +12,11 @@ import "../interfaces/ISinglePageRandomPack.sol";
     @dev contains ownership and pack size
   */
 contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
+    uint8 constant public MAX_PACK_SIZE = 10;
     uint256 public nextPackId;
 
     mapping(TokenId => PackSize) public size;
     mapping(PackSize => uint8) public piecesInPackSize;
-
 
     constructor() ERC721("SinglePage ArtGrinder RandomPack NFT", "SRP") {//TODO names
         piecesInPackSize[PackSize.Mini] = 3;
@@ -24,7 +24,7 @@ contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
         piecesInPackSize[PackSize.DoubleStuf] = 10;
     }
 
-    function mint(address to, PackSize packSize) external onlyOwner returns (TokenId tokenId){
+    function mint(address to, PackSize packSize, uint8[10] calldata pieces) external onlyOwner returns (TokenId tokenId){
         TokenId id = TokenId.wrap(nextPackId);
         _mint(to, TokenId.unwrap(id));
         size[id] = packSize;
