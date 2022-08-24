@@ -22,14 +22,10 @@ jobs:
     - name: brownie-compile
       run: |
         brownie compile
-#    - name: brownie-test
-#      run: |
-#        brownie test
+    - name: brownie-test
+      run: |
+        brownie test
     - uses: actions/upload-artifact@v3
       with:
         name: interfaces-abi
         path: build/interfaces
-#    - uses: actions/upload-artifact@v3
-#      with:
-#        name: contracts-abi
-#        path: build/contracts
