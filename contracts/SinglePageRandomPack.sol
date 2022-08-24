@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.14;
 
-import "@openzeppelin/token/ERC721/ERC721.sol";
+import "@openzeppelin/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/access/Ownable.sol";
 import "../interfaces/ISinglePageRandomPack.sol";
 
@@ -11,15 +12,16 @@ import "../interfaces/ISinglePageRandomPack.sol";
     @author Gene A. Tsvigun
     @dev contains ownership and pack size
   */
-contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
+contract SinglePageRandomPack is ISinglePageRandomPack, ERC721Enumerable, Ownable {
     uint8 constant public MAX_PACK_SIZE = 10;
+    uint8 constant public PIECES_NUM = 14;
     uint256 public nextPackId;
 
+    mapping(PackSize => uint8) public piecesInPackSize;
     mapping(TokenId => PackSize) public size;
     mapping(TokenId => uint8[MAX_PACK_SIZE]) public pieces;
-    mapping(PackSize => uint8) public piecesInPackSize;
 
-    constructor() ERC721("SinglePage ArtGrinder RandomPack NFT", "SRP") {//TODO names
+    constructor() ERC721("SinglePage RandomBits Stickerpack NFT", "SRP") {//TODO names
         piecesInPackSize[PackSize.Mini] = 2;
         piecesInPackSize[PackSize.Regular] = 3;
         piecesInPackSize[PackSize.DoubleStuf] = 5;
@@ -29,8 +31,15 @@ contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
         TokenId id = TokenId.wrap(nextPackId);
         _mint(to, TokenId.unwrap(id));
         size[id] = packSize;
+        pieces[id] = pieces_;
         nextPackId++;
         return id;
+    }
+
+    function burn(TokenId tokenId) external onlyOwner {
+        _burn(TokenId.unwrap(tokenId));
+        delete size[tokenId];
+        delete pieces[tokenId];
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
@@ -46,4 +55,29 @@ contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
         return pieces[tokenId];
     }
 
+    function hasPieces(address player) external view returns (bool[PIECES_NUM] memory piecesPresent) {
+        return hasPieces_(player);
+    }
+
+    function hasAllPieces(address player) external view returns (bool) {
+        bool[PIECES_NUM] memory piecePresent = hasPieces_(player);
+        for (uint8 p = 0; p < PIECES_NUM; p++) {
+            if (!piecePresent[p]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    function hasPieces_(address player) private view returns (bool[PIECES_NUM] memory piecesPresent) {
+        for (uint8 i = 0; i < balanceOf(player); i++) {
+            TokenId pack = TokenId.wrap(tokenOfOwnerByIndex(player, i));
+            for (uint8 p = 0; p < pieces[pack].length; p++) {
+                if (pieces[pack][p] > 0) {
+                    piecesPresent[pieces[pack][p] - 1] = true;
+                }
+            }
+        }
+    }
 }

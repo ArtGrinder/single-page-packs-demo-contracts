@@ -8,5 +8,5 @@ interface ISinglePagePacks {
 
     function grantPack(address player) external;
 
-    function mint() external;
+    function mint() external returns (uint256 tokenId) ;
 }
