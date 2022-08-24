@@ -15,6 +15,8 @@ import "./SinglePageRandomPack.sol";
   */
 contract SinglePagePacks is ISinglePagePacks, ERC721Holder, AccessControl {
     uint8 constant public MAX_PACK_SIZE = 10;
+    uint8 constant public MAX_PACKS_PER_USER = 100;
+    uint8 constant public PIECES_NUM = 14;
 
     ISinglePageRandomPack randomPack;
 
@@ -30,7 +32,7 @@ contract SinglePagePacks is ISinglePagePacks, ERC721Holder, AccessControl {
 
         uint256 sortaRandomness = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty)));
 
-        uint8[MAX_PACK_SIZE] memory pieces = expand(sortaRandomness, piecesNum, 14);
+        uint8[MAX_PACK_SIZE] memory pieces = expand(sortaRandomness, piecesNum, PIECES_NUM);
         TokenId tokenId = randomPack.mint(player, PackSize.Regular, pieces);
         emit Pack(tokenId, pieces);
     }

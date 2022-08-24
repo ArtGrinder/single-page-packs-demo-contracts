@@ -18,5 +18,7 @@ interface ISinglePageRandomPack is IERC721 {
 
     function piecesInPackSize(PackSize packSize) external view returns (uint8);
 
-    function piecesInPack(TokenId tokenId) external view returns (uint8);
+    function piecesNumberInPack(TokenId tokenId) external view returns (uint8);
+
+    function piecesInPack(TokenId tokenId) external view returns (uint8[10] memory pieces);
 }

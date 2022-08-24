@@ -16,15 +16,16 @@ contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
     uint256 public nextPackId;
 
     mapping(TokenId => PackSize) public size;
+    mapping(TokenId => uint8[MAX_PACK_SIZE]) public pieces;
     mapping(PackSize => uint8) public piecesInPackSize;
 
     constructor() ERC721("SinglePage ArtGrinder RandomPack NFT", "SRP") {//TODO names
-        piecesInPackSize[PackSize.Mini] = 3;
-        piecesInPackSize[PackSize.Regular] = 7;
-        piecesInPackSize[PackSize.DoubleStuf] = 10;
+        piecesInPackSize[PackSize.Mini] = 2;
+        piecesInPackSize[PackSize.Regular] = 3;
+        piecesInPackSize[PackSize.DoubleStuf] = 5;
     }
 
-    function mint(address to, PackSize packSize, uint8[10] calldata pieces) external onlyOwner returns (TokenId tokenId){
+    function mint(address to, PackSize packSize, uint8[MAX_PACK_SIZE] calldata pieces_) external onlyOwner returns (TokenId tokenId){
         TokenId id = TokenId.wrap(nextPackId);
         _mint(to, TokenId.unwrap(id));
         size[id] = packSize;
@@ -34,11 +35,15 @@ contract SinglePageRandomPack is ISinglePageRandomPack, ERC721, Ownable {
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-        return "https://arweave.net/_fnRKg27Djs4ZG0rgqKU5YpaRdgpeorCKqizcKhdtcw";
+        return "ar://UYgFgiI85-TGeVlWZx-94Q7nExaXHw3UJE9v3qMiu44";
     }
 
-    function piecesInPack(TokenId tokenId) external view returns (uint8){
+    function piecesNumberInPack(TokenId tokenId) external view returns (uint8){
         return piecesInPackSize[size[tokenId]];
+    }
+
+    function piecesInPack(TokenId tokenId) external view returns (uint8[10] memory){
+        return pieces[tokenId];
     }
 
 }
